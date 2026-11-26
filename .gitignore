@@ -137,3 +137,4 @@ macos/*
 
 # Local benchmark reports and exploratory figures
 /benchmarks/runs/
+!/examples/speechnote-ru.wav

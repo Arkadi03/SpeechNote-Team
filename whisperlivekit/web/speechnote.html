@@ -1,0 +1,56 @@
+<!-- SpeechNote · Цифровые кафедры ТПУ. Интерфейс для WhisperLiveKit. -->
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>SpeechNote — студия транскрибации</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="speechnote.css">
+</head>
+<body>
+  <header><div class="bar frame">
+<!-- ШАГ 1.1 -->
+    <span id="connection" class="chip" role="status">Проверка связи…</span>
+  </div></header>
+  <main class="frame">
+<!-- ШАГ 1.2 -->
+    <div class="workspace">
+      <section class="card source" aria-labelledby="source-title">
+        <h2 id="source-title">Источник звука</h2>
+        <div class="switch" role="group" aria-label="Источник звука">
+          <button id="tab-mic" aria-pressed="true" aria-controls="mic-panel">Микрофон</button>
+          <button id="tab-file" aria-pressed="false" aria-controls="file-panel">Аудиофайл</button>
+        </div>
+        <div id="mic-panel">
+          <div class="well monitor"><div class="signal" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <span id="timer">00:00</span></div>
+          <button class="primary" id="record">Начать запись</button>
+        </div>
+        <div id="file-panel" hidden>
+          <label class="well filepick"><span class="upload-mark" aria-hidden="true">↑</span><strong id="filename">Выбрать аудиофайл</strong><small>WAV, MP3, M4A, OGG или WebM</small>
+            <input id="audiofile" type="file" accept="audio/*,.wav,.mp3,.m4a,.ogg,.webm,.flac"></label>
+          <button class="primary" id="upload" disabled>Распознать файл</button>
+        </div>
+        <p class="notice" id="notice" role="status" aria-live="polite"></p>
+      </section>
+      <section class="card result" aria-labelledby="result-title">
+        <div class="result-head"><h2 id="result-title">Расшифровка</h2><span class="language">Русский</span></div>
+        <div class="paper"><p id="empty">Здесь появится текст записи.</p><div id="transcript"></div><p id="draft" aria-label="Предварительный текст"></p></div>
+        <div class="tools"><button id="copy" disabled>Копировать</button><button id="save" disabled>Скачать TXT</button><button id="clear" class="quiet" disabled>Очистить</button></div>
+      </section>
+    </div>
+    <details id="help"><summary>Как пользоваться SpeechNote</summary><div id="help-text"></div></details>
+  </main>
+<!-- ШАГ 1.3 -->
+  <script src="speechnote.js"></script>
+  <script src="sn-transcript.js"></script>
+  <script src="sn-status.js"></script>
+  <script type="text/plain" id="pcm-worklet"></script>
+  <script type="text/plain" id="pcm-worker"></script>
+  <script src="sn-mic.js"></script>
+  <script src="sn-file.js"></script>
+  <script src="sn-actions.js"></script>
+</body>
+</html>
