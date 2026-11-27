@@ -17,7 +17,7 @@ def get_inline_ui_html():
         '<link rel="stylesheet" href="speechnote.css">',
         f'<style>{_read("speechnote.css")}</style>',
     )
-    for name in ("speechnote", "sn-transcript", "sn-status", "sn-mic", "sn-file", "sn-actions"):
+    for name in ("speechnote", "sn-settings", "sn-transcript", "sn-status", "sn-mic", "sn-file", "sn-actions", "sn-questions"):
         filename = f"{name}.js"
         page = page.replace(f'<script src="{filename}"></script>', f"<script>{_read(filename)}</script>")
 

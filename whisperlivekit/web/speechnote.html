@@ -11,12 +11,20 @@
 </head>
 <body>
   <header><div class="bar frame">
-<!-- ШАГ 1.1 -->
+    <a class="brand" href="./" aria-label="SpeechNote — главная"><span class="mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>SpeechNote</a>
     <span id="connection" class="chip" role="status">Проверка связи…</span>
   </div></header>
   <main class="frame">
-<!-- ШАГ 1.2 -->
-    <div class="workspace">
+    <nav class="modes" aria-label="Разделы студии">
+      <button data-mode="meeting" aria-pressed="true">Совещание</button>
+      <button data-mode="conference" aria-pressed="false">Конференция</button>
+      <button data-mode="settings" aria-pressed="false">Настройки</button>
+    </nav>
+    <div class="intro"><p class="eyebrow">Цифровые кафедры ТПУ</p>
+      <h1 id="title">Совещание</h1>
+      <p id="description">Запишите речь или выберите аудиофайл, чтобы получить текст на русском языке.</p>
+    </div>
+    <div id="studio" class="workspace">
       <section class="card source" aria-labelledby="source-title">
         <h2 id="source-title">Источник звука</h2>
         <div class="switch" role="group" aria-label="Источник звука">
@@ -41,10 +49,27 @@
         <div class="tools"><button id="copy" disabled>Копировать</button><button id="save" disabled>Скачать TXT</button><button id="clear" class="quiet" disabled>Очистить</button></div>
       </section>
     </div>
+    <section id="conference-tools" class="card extra" hidden>
+      <h2>Вопросы к выступлению</h2>
+      <p>По нажатию кнопки текст конференции будет отправлен выбранному API.</p>
+      <button id="generate">Сгенерировать вопросы</button>
+      <p id="question-status" role="status"></p><div id="questions" class="paper" aria-label="Сгенерированные вопросы"></div>
+    </section>
+    <section id="settings" class="card extra" hidden>
+      <h2>Языковая модель</h2>
+      <label>Имя модели<input id="llm-model" placeholder="Идентификатор модели у провайдера" autocomplete="off"></label>
+      <label>URL API<input id="llm-url" type="url" placeholder="https://api.example.org/v1" autocomplete="off"></label>
+      <label>API-token<input id="llm-token" type="password" autocomplete="off" spellcheck="false"></label>
+      <p>Параметры действуют сразу в этой вкладке до обновления страницы. Для локального API без авторизации оставьте токен пустым.</p>
+      <h2>Распознавание речи</h2>
+      <label><input type="checkbox" id="speakers" disabled> Автоматически определять говорящих</label>
+      <p id="speaker-state">Проверка возможностей сервера…</p>
+    </section>
     <details id="help"><summary>Как пользоваться SpeechNote</summary><div id="help-text"></div></details>
   </main>
-<!-- ШАГ 1.3 -->
+  <footer class="frame"><span>Томский политехнический университет</span><span>Распознавание на базе <a href="https://github.com/QuentinFuxa/WhisperLiveKit">WhisperLiveKit</a></span></footer>
   <script src="speechnote.js"></script>
+  <script src="sn-settings.js"></script>
   <script src="sn-transcript.js"></script>
   <script src="sn-status.js"></script>
   <script type="text/plain" id="pcm-worklet"></script>
@@ -52,5 +77,6 @@
   <script src="sn-mic.js"></script>
   <script src="sn-file.js"></script>
   <script src="sn-actions.js"></script>
+  <script src="sn-questions.js"></script>
 </body>
 </html>

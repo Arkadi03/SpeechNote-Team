@@ -77,6 +77,7 @@ async def health(request: Request):
         "status": "ok",
         "backend": backend,
         "ready": transcription_engine is not None,
+        "diarization_available": getattr(transcription_engine, "diarization_model", None) is not None,
     })
 
 
@@ -116,6 +117,9 @@ async def websocket_endpoint(websocket: WebSocket):
 
     # Read per-session options from query parameters
     session_language = websocket.query_params.get("language", None)
+    diarization = websocket.query_params.get("diarization")
+    if diarization is not None:
+        diarization = diarization == "true"
     mode = websocket.query_params.get("mode", "full")
     session_target_language = websocket.query_params.get("target_language", None)
     session_context = websocket.query_params.get("context", None)
@@ -124,6 +128,7 @@ async def websocket_endpoint(websocket: WebSocket):
         audio_processor = AudioProcessor(
             transcription_engine=transcription_engine,
             language=session_language,
+            session_diarization=diarization,
             mode=mode,
             target_language=session_target_language,
             context=session_context,
@@ -388,7 +393,8 @@ def _format_openai_response(front_data, response_format: str, language: Optional
             # spoken transcript segments with actual text.
             if line.get("speaker") == -2 or not line.get("text"):
                 continue
-            speaker = _speaker_label(line.get("speaker", 1), speaker_labels)
+            assigned = line.get("speaker_assigned", True)
+            speaker = _speaker_label(line.get("speaker", 1), speaker_labels) if assigned else "unknown"
             start = _parse_time_str(line.get("start", "0:00:00"))
             end = _parse_time_str(line.get("end", "0:00:00"))
             text = line["text"]
@@ -402,7 +408,7 @@ def _format_openai_response(front_data, response_format: str, language: Optional
             })
             # Match the diarized_json top-level transcript style by preserving
             # speaker turns in the combined text instead of flattening them.
-            text_parts.append(f"{speaker}: {text}")
+            text_parts.append(f"{speaker}: {text}" if assigned else text)
 
         return {
             "task": "transcribe",
@@ -501,6 +507,7 @@ async def create_transcription(
     request: Request,
     file: UploadFile = File(...),
     model: str = Form(default=""),
+    diarization: Optional[bool] = Form(default=None),
     language: Optional[str] = Form(default=None),
     prompt: str = Form(default=""),
     response_format: str = Form(default="json"),
@@ -531,6 +538,10 @@ async def create_transcription(
         )
 
     diarization_enabled = bool(getattr(config, "diarization", False))
+    if diarization and not diarization_enabled:
+        raise HTTPException(status_code=400, detail="Diarization is unavailable in this server profile")
+    if diarization is False:
+        diarization_enabled = False
     if response_format == "diarized_json" and not diarization_enabled:
         raise HTTPException(
             status_code=400,
@@ -577,6 +588,7 @@ async def create_transcription(
             language=language,
             context=prompt,
             pcm_input=True,
+            session_diarization=diarization,
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

@@ -3,8 +3,8 @@
   let active = null;
   function sync() {
     button.disabled = active ? active.phase === "finishing" : SN.busy;
-/* ШАГ 3.1 */
-    button.textContent = active ? "Остановить" : "Начать запись";
+    const labels = {connecting:"Отменить", recording:"Остановить", finishing:"Завершение…"};
+    button.textContent = labels[active?.phase] || "Начать запись";
     button.classList.toggle("recording", active?.phase === "recording");
     document.querySelector(".monitor").classList.toggle("active", active?.phase === "recording");
   }
@@ -40,7 +40,10 @@
   }
   function send(s, data) {
     if (active !== s || s.socket.readyState !== WebSocket.OPEN) return;
-/* ШАГ 3.3 */
+    if (s.socket.bufferedAmount > 4 * 1024 * 1024) {
+      end(s, "Соединение слишком медленное. Сохранён подтверждённый текст.");
+      return;
+    }
     s.socket.send(data);
   }
   function blobUrl(s, id, suffix = "") {
@@ -76,7 +79,12 @@
       s.recorder.start(250);
     }
     s.phase = "recording";
-/* ШАГ 3.2 */
+    s.started = Date.now();
+    SN.el("timer").textContent = "00:00";
+    s.clock = setInterval(() => {
+      const sec = Math.floor((Date.now() - s.started) / 1000);
+      SN.el("timer").textContent = [Math.floor(sec / 60), sec % 60].map(n => String(n).padStart(2, "0")).join(":");
+    }, 250);
     clearTimeout(s.deadline);
     sync();
     SN.notice("Идёт запись. Говорите в микрофон.");
@@ -98,6 +106,7 @@
       const url = SN.endpoint("asr");
       url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
       url.searchParams.set("language", "ru");
+      url.searchParams.set("diarization", String(SN.speakers()));
       s.socket = new WebSocket(url);
       deadline(s, 15000, "Сервер не ответил на запрос записи.");
       s.socket.onerror = () => end(s, "Не удалось подключить микрофон к серверу.");
