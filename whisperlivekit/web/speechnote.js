@@ -25,3 +25,28 @@ for (const name of ["mic", "file"]) {
     SN.notice("");
   };
 }
+SN.mode = "meeting";
+const sections = {
+  meeting:["Совещание", "Запишите речь или выберите аудиофайл, чтобы получить текст на русском языке."],
+  conference:["Конференция", "Распознайте выступление и подготовьте вопросы по его содержанию."],
+  settings:["Настройки", "Выберите службу генерации вопросов и режим распознавания речи."]
+};
+const modeButtons = document.querySelectorAll("[data-mode]");
+for (const button of modeButtons) {
+  button.onclick = () => {
+    const mode = button.dataset.mode;
+    if (SN.busy || mode === SN.mode) return;
+    SN.mode = mode;
+    if (mode !== "settings") SN.transcript.select(mode);
+    for (const item of modeButtons) item.setAttribute("aria-pressed", String(item === button));
+    SN.el("studio").hidden = mode === "settings";
+    SN.el("conference-tools").hidden = mode !== "conference";
+    SN.el("settings").hidden = mode !== "settings";
+    SN.el("title").textContent = sections[mode][0];
+    SN.el("description").textContent = sections[mode][1];
+    SN.notice("");
+  };
+}
+document.addEventListener("sn-control-change", () => {
+  for (const button of modeButtons) button.disabled = SN.busy;
+});
