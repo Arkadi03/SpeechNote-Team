@@ -185,6 +185,10 @@ class Segment(TimedText):
             'start': format_time(self.start),
             'end': format_time(self.end),
         }
+        if self.speaker == -1:
+            # Legacy clients expect speaker 1 here. Preserve whether ASR actually
+            # received a speaker assignment before formatting a v2 transcript.
+            _dict["speaker_assigned"] = False
         if self.translation:
             _dict['translation'] = self.translation
         if self.detected_language:

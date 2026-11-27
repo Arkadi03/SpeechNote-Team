@@ -83,6 +83,7 @@ class AudioProcessor:
         self._stream_events_after_snapshot = (
             asyncio.Queue() if self.stream_event_queue is not None else None
         )
+        session_diarization = kwargs.pop('session_diarization', None)
         session_pcm_input = kwargs.pop('pcm_input', None)
         # Output mode of the session: "full" resends the whole transcript on
         # every update, so history must never be pruned away (issue #372);
@@ -97,6 +98,12 @@ class AudioProcessor:
 
         # Audio processing settings
         self.args = models.args
+        if session_diarization is not None:
+            if session_diarization and not self.args.diarization:
+                raise ValueError("Diarization is unavailable in this server profile")
+            # Keep per-session switches isolated from the shared engine configuration.
+            from argparse import Namespace
+            self.args = Namespace(**{**vars(models.args), "diarization": session_diarization})
         configured_pause_segmentation_seconds = getattr(
             self.args,
             "pause_segmentation_seconds",

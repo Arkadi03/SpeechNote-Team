@@ -1,4 +1,15 @@
-/* ШАГ 2.1 */
+:root {
+  color-scheme:dark;
+  --bg:#101718;
+  --card:#1c2628;
+  --edge:#3a4849;
+  --text:#f2f5ef;
+  --muted:#adbfbb;
+  --accent:#a4edd3;
+  --ink:#112e25;
+  font:16px/1.55 "Segoe UI",Arial,sans-serif;
+}
+
 * {
   box-sizing:border-box;
 }
@@ -131,7 +142,28 @@ a {
   margin:10px 0 12px;
 }
 
-/* ШАГ 2.2 */
+.workspace {
+  display:grid;
+  grid-template-columns:minmax(260px,.82fr) minmax(0,1.48fr);
+  gap:18px;
+  align-items:stretch;
+}
+
+.card {
+  min-width:0;
+  padding:24px;
+  background:var(--card);
+  border:1px solid var(--edge);
+  border-radius:18px;
+}
+
+h2 {
+  font-size:22px;
+  line-height:1.25;
+  letter-spacing:-.03em;
+  margin:0;
+}
+
 .switch {
   gap:4px;
   background:var(--bg);
@@ -380,4 +412,44 @@ footer a {
   text-underline-offset:3px;
 }
 
-/* ШАГ 2.3 */
+@media(max-width:760px) {
+  .frame {
+    width:calc(100% - 32px);
+  }
+  .workspace {
+    grid-template-columns:1fr;
+  }
+  .card {
+    padding:18px;
+  }
+  .intro {
+    padding:32px 0 22px;
+  }
+  .bar {
+    min-height:64px;
+  }
+  .paper {
+    min-height:135px;
+  }
+  .tools .quiet {
+    margin-left:0;
+  }
+}
+
+@media(prefers-reduced-motion:reduce) {
+  .signal i {
+    animation:none!important;
+  }
+}
+.modes { display:flex; flex-wrap:wrap; gap:8px; margin-top:24px; }
+.modes [aria-pressed="true"] { background:var(--accent); color:var(--ink); }
+.extra { margin-top:20px; }
+.extra p { color:var(--muted); }
+.extra label { display:block; max-width:38rem; margin-top:14px; }
+.extra input:not([type="checkbox"]) {
+  display:block; width:100%; margin-top:4px; padding:10px 12px; border-radius:8px;
+  background:var(--bg); color:var(--text); border:1px solid var(--edge); font:inherit;
+}
+.extra input:focus-visible { outline:2px solid var(--accent); }
+#questions { min-height:3em; white-space:pre-wrap; }
+#settings h2:not(:first-child) { margin-top:28px; }
